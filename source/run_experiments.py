@@ -264,16 +264,20 @@ def nfold_1_2_3_setting_sample(XD, XT,  Y, label_row_inds, label_col_inds, measu
         print("train set", str(len(otherfoldsinds)))
 
 
-
+    print("general_nfold_cv first")
     bestparamind, best_param_list, bestperf, all_predictions_not_need, losses_not_need = general_nfold_cv(XD, XT,  Y, label_row_inds, label_col_inds, 
                                                                                                 measure, runmethod, FLAGS, train_sets, val_sets)
    
     #print("Test Set len", str(len(test_set)))
     #print("Outer Train Set len", str(len(outer_train_sets)))
+    print("general_nfold_cv second")
     bestparam, best_param_list, bestperf, all_predictions, all_losses = general_nfold_cv(XD, XT,  Y, label_row_inds, label_col_inds, 
                                                                                                 measure, runmethod, FLAGS, train_sets, test_sets)
     
+    print("all_predictions")
     testperf = all_predictions[bestparamind]##pointer pos 
+
+    print("all_predictions done")
 
     logging("---FINAL RESULTS-----", FLAGS)
     logging("best param index = %s,  best param = %.5f" % 
@@ -380,6 +384,7 @@ def general_nfold_cv(XD, XT,  Y, label_row_inds, label_col_inds, prfmeasure, run
 
                     pointer +=1
 
+    print("done with training")
     bestperf = -float('Inf')
     bestpointer = None
 
@@ -403,7 +408,8 @@ def general_nfold_cv(XD, XT,  Y, label_row_inds, label_col_inds, prfmeasure, run
                         best_param_list = [param1ind, param2ind, param3ind]
 
                     pointer +=1
-        
+    print("bestPointer " + bestPointer)
+    print("bestperf " + bestperf)
     return  bestpointer, best_param_list, bestperf, all_predictions, all_losses
 
 
@@ -515,9 +521,11 @@ def experiment(FLAGS, perfmeasure, deepmethod, foldcount=6): #5-fold cross valid
         os.makedirs(figdir)
 
     print(FLAGS.log_dir)
+    print("before nfold_1_2_3")
     S1_avgperf, S1_avgloss, S1_teststd = nfold_1_2_3_setting_sample(XD, XT, Y, label_row_inds, label_col_inds,
                                                                      perfmeasure, deepmethod, FLAGS, dataset)
 
+    print("after nfold_1_2_3")
     logging("Setting " + str(FLAGS.problem_type), FLAGS)
     logging("avg_perf = %.5f,  avg_mse = %.5f, std = %.5f" % 
             (S1_avgperf, S1_avgloss, S1_teststd), FLAGS)

@@ -1,6 +1,6 @@
 import csv, pickle, json, os, math, sys
 from collections import OrderedDict
-from bioservices import UniProt
+#from bioservices import UniProt
 import numpy as np
 import pickle
 

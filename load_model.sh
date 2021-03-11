@@ -1,0 +1,12 @@
+python deepdta-toy/load_model_checkpoint.py --num_windows 2 \
+                          --seq_window_lengths 2 \
+                          --smi_window_lengths 2 \
+                          --batch_size 256 \
+                          --num_epoch 1 \
+                          --max_seq_len 1000 \
+                          --max_smi_len 100 \
+                          --train_path 'deepdta-toy/data/DTC/' \
+                          --test_path 'deepdta-toy/data/mytest/' \
+                          --problem_type 1 \
+                          --is_log 0 \
+                          --log_dir 'logs/'

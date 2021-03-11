@@ -30,7 +30,7 @@ import keras
 from keras.models import Model
 from keras.preprocessing import sequence
 from keras.models import Sequential, load_model
-from keras.layers import Dense, Dropout, Activation, Merge
+from keras.layers import Dense, Dropout, Activation
 from keras.layers import Embedding
 from keras.layers import Conv1D, GlobalMaxPooling1D, MaxPooling1D
 from keras.layers.normalization import BatchNormalization
@@ -52,7 +52,7 @@ from random import shuffle
 from copy import deepcopy
 from sklearn import preprocessing
 from emetrics import get_aupr, get_cindex, get_rm2
-import pandas as pd
+#import pandas as pd
 from testdatahelper import *
 
 
@@ -242,7 +242,8 @@ def build_baseline(FLAGS, NUM_FILTERS, FILTER_LENGTH1, FILTER_LENGTH2):
     return interactionModel
 
 def nfold_1_2_3_setting_sample(tr_XD, tr_XT,  tr_Y, te_XD, te_XT, te_Y,  measure, runmethod,  FLAGS, dataset):
-
+                               #measure is perfmeasure
+                               #runmethod is deepmethod = build_combined_categorical
     bestparamlist = []
     test_set, outer_train_sets = dataset.read_sets(FLAGS) 
     
@@ -371,6 +372,17 @@ def general_nfold_cv(tr_XD, tr_XT,  tr_Y, te_XD, te_XT, te_Y,  prfmeasure, runme
                 all_predictions[pointer] =rperf #TODO FOR EACH VAL SET allpredictions[pointer][foldind]
                 all_losses[pointer]= loss
 
+                print("getting prediction");
+                pred_y = gridmodel.predict([np.array(train_drugs), np.array(train_prots) ])
+
+                #this should match loaded model
+                print("printing prediction");
+                print(pred_y[1:10])
+                print(train_Y[1:10])
+
+                gridmodel.save("my_model")
+
+
                 pointer +=1
 
     bestperf = -float('Inf')
@@ -467,7 +479,26 @@ def prepare_interaction_pairs(XD, XT,  Y, rows, cols):
 
     return drug_data,target_data,  affinity
 
+def prepare_interaction_pairs(XD, XT,  Y, rows, cols):
+    drugs = []
+    targets = []
+    targetscls = []
+    affinity=[] 
+        
+    for pair_ind in range(len(rows)):
 
+            drug = XD[rows[pair_ind]]
+            drugs.append(drug)
+
+            target=XT[cols[pair_ind]]
+            targets.append(target)
+
+            affinity.append(Y[rows[pair_ind],cols[pair_ind]])
+
+    drug_data = np.stack(drugs)
+    target_data = np.stack(targets)
+
+    return drug_data,target_data,  affinity
        
 def experiment(FLAGS, perfmeasure, deepmethod, foldcount=6): #5-fold cross validation + test
 
@@ -521,7 +552,7 @@ def experiment(FLAGS, perfmeasure, deepmethod, foldcount=6): #5-fold cross valid
 
     print(FLAGS.log_dir)
     S1_avgperf, S1_avgloss, S1_teststd = nfold_1_2_3_setting_sample(tr_XD, tr_XT,  tr_Y, te_XD, te_XT, te_Y,
-                                                                     perfmeasure, deepmethod, FLAGS, dataset)
+                                                                     perfmeasure, deepmethod, FLAGS, dataset)  #perfmeasure is arg 7, deepmethod arg 8
 
     logging("Setting " + str(FLAGS.problem_type), FLAGS)
     logging("avg_perf = %.5f,  avg_mse = %.5f, std = %.5f" % 
