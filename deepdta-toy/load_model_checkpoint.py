@@ -2,11 +2,11 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
-from keras.layers import Dense, Dropout, Activation
-from keras.layers import Embedding
-from keras.layers import Conv1D, GlobalMaxPooling1D, MaxPooling1D
-from keras.layers import Input
-from keras.models import Model
+from tensorflow.keras.layers import Dense, Dropout, Activation
+from tensorflow.keras.layers import Embedding
+from tensorflow.keras.layers import Conv1D, GlobalMaxPooling1D, MaxPooling1D
+from tensorflow.keras.layers import Input
+from tensorflow.keras.models import Model
 
 from datahelper import *
 #import logging
@@ -14,20 +14,20 @@ from itertools import product
 from arguments import argparser, logging
 
 import keras
-from keras.models import Model
-from keras.preprocessing import sequence
-from keras.models import Sequential, load_model
-from keras.layers import Dense, Dropout, Activation
-from keras.layers import Embedding
-from keras.layers import Conv1D, GlobalMaxPooling1D, MaxPooling1D
-from keras.layers.normalization import BatchNormalization
-from keras.layers import Conv2D, GRU
-from keras.layers import Input, Embedding, LSTM, Dense, TimeDistributed, Masking, RepeatVector, merge, Flatten
-from keras.models import Model
-from keras.utils import plot_model
-from keras.layers import Bidirectional
-from keras.callbacks import ModelCheckpoint, EarlyStopping
-from keras import optimizers, layers
+from tensorflow.keras.models import Model
+from tensorflow.keras.preprocessing import sequence
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import Dense, Dropout, Activation
+from tensorflow.keras.layers import Embedding
+from tensorflow.keras.layers import Conv1D, GlobalMaxPooling1D, MaxPooling1D
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.layers import Conv2D, GRU
+from tensorflow.keras.layers import Input, Embedding, LSTM, Dense, TimeDistributed, Masking, RepeatVector, Flatten
+from tensorflow.keras.models import Model
+from tensorflow.keras.utils import plot_model
+from tensorflow.keras.layers import Bidirectional
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.keras import optimizers, layers
 
 
 import sys, pickle, os
@@ -182,7 +182,8 @@ def experiment(FLAGS, perfmeasure, deepmethod, foldcount=6): #5-fold cross valid
       'cindex_score': cindex_score
     }
 
-    reconstructed_model = keras.models.load_model("my_model", custom_objects=dependencies)
+    #reconstructed_model = keras.models.load_model("my_model", custom_objects=dependencies)
+    reconstructed_model = tf.keras.models.load_model('./saved_model', custom_objects=dependencies)
 
     tr_label_row_inds, tr_label_col_inds = np.where(np.isnan(tr_Y)==False)  #basically finds the point address of affinity [x,y]
     te_label_row_inds, te_label_col_inds = np.where(np.isnan(te_Y)==False)  #basically finds the point address of affinity [x,y
