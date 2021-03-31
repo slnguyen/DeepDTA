@@ -13,12 +13,14 @@ os.environ['PYTHONHASHSEED'] = '0'
 np.random.seed(1)
 rn.seed(1)
 
-session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+#session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+#session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
 import keras
 from keras import backend as K
-tf.set_random_seed(0)
-sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
-K.set_session(sess)
+#tf.set_random_seed(0)
+tf.random.set_seed(0)
+#sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+#K.set_session(sess)
 
 
 from datahelper import *
@@ -26,21 +28,23 @@ from datahelper import *
 from itertools import product
 from arguments import argparser, logging
 
-import keras
-from keras.models import Model
-from keras.preprocessing import sequence
-from keras.models import Sequential, load_model
-from keras.layers import Dense, Dropout, Activation
-from keras.layers import Embedding
-from keras.layers import Conv1D, GlobalMaxPooling1D, MaxPooling1D
-from keras.layers.normalization import BatchNormalization
-from keras.layers import Conv2D, GRU
-from keras.layers import Input, Embedding, LSTM, Dense, TimeDistributed, Masking, RepeatVector, merge, Flatten
-from keras.models import Model
-from keras.utils import plot_model
-from keras.layers import Bidirectional
-from keras.callbacks import ModelCheckpoint, EarlyStopping
-from keras import optimizers, layers
+import tensorflow.keras
+from tensorflow.keras.models import Model
+from tensorflow.keras.preprocessing import sequence
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import Dense, Dropout, Activation
+from tensorflow.keras.layers import Embedding
+from tensorflow.keras.layers import Conv1D, GlobalMaxPooling1D, MaxPooling1D
+#from tensorflow.keras.layers.normalization import BatchNormalization
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.layers import Conv2D, GRU
+#from tensorflow.keras.layers import Input, Embedding, LSTM, Dense, TimeDistributed, Masking, RepeatVector, merge, Flatten
+from tensorflow.keras.layers import Input, Embedding, LSTM, Dense, TimeDistributed, Masking, RepeatVector, Flatten
+from tensorflow.keras.models import Model
+from tensorflow.keras.utils import plot_model
+from tensorflow.keras.layers import Bidirectional
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.keras import optimizers, layers
 
 
 import sys, pickle, os
@@ -78,7 +82,7 @@ def build_combined_onehot(FLAGS, NUM_FILTERS, FILTER_LENGTH1, FILTER_LENGTH2):
 
 
 
-    encode_interaction = keras.layers.concatenate([encode_smiles, encode_protein])
+    encode_interaction = tensorflow.keras.layers.concatenate([encode_smiles, encode_protein])
     #encode_interaction = keras.layers.concatenate([encode_smiles, encode_protein], axis=-1) #merge.Add()([encode_smiles, encode_protein])
 
     # Fully connected 
@@ -124,7 +128,7 @@ def build_combined_categorical(FLAGS, NUM_FILTERS, FILTER_LENGTH1, FILTER_LENGTH
     encode_protein = GlobalMaxPooling1D()(encode_protein)
 
 
-    encode_interaction = keras.layers.concatenate([encode_smiles, encode_protein], axis=-1) #merge.Add()([encode_smiles, encode_protein])
+    encode_interaction = tensorflow.keras.layers.concatenate([encode_smiles, encode_protein], axis=-1) #merge.Add()([encode_smiles, encode_protein])
 
     # Fully connected 
     FC1 = Dense(1024, activation='relu')(encode_interaction)
@@ -137,7 +141,7 @@ def build_combined_categorical(FLAGS, NUM_FILTERS, FILTER_LENGTH1, FILTER_LENGTH
     # And add a logistic regression on top
     predictions = Dense(1, kernel_initializer='normal')(FC2) #OR no activation, rght now it's between 0-1, do I want this??? activation='sigmoid'
 
-    interactionModel = Model(inputs=[XDinput, XTinput], outputs=[predictions])
+    interactionModel = tensorflow.keras.models.Model(inputs=[XDinput, XTinput], outputs=[predictions])
 
     interactionModel.compile(optimizer='adam', loss='mean_squared_error', metrics=[cindex_score]) #, metrics=['cindex_score']
     print(interactionModel.summary())
@@ -380,7 +384,7 @@ def general_nfold_cv(tr_XD, tr_XT,  tr_Y, te_XD, te_XT, te_Y,  prfmeasure, runme
                 print(pred_y[1:10])
                 print(train_Y[1:10])
 
-                gridmodel.save("my_model")
+                gridmodel.save("./saved_model")
 
 
                 pointer +=1
@@ -419,7 +423,7 @@ def cindex_score(y_true, y_pred):
     g = tf.cast(g == 0.0, tf.float32) * 0.5 + tf.cast(g > 0.0, tf.float32)
 
     f = tf.subtract(tf.expand_dims(y_true, -1), y_true) > 0.0
-    f = tf.matrix_band_part(tf.cast(f, tf.float32), -1, 0)
+    f = tf.compat.v1.matrix_band_part(tf.cast(f, tf.float32), -1, 0)
 
     g = tf.reduce_sum(tf.multiply(g, f))
     f = tf.reduce_sum(f)
