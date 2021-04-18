@@ -107,9 +107,7 @@ def label_sequence(line, MAX_SEQ_LEN, smi_ch_ind):
 ## ######################## ## 
 # works for large dataset
 class DataSet(object):
-  def __init__(self, fpath, fpath_test, setting_no, seqlen, smilen, need_shuffle = False):
-
-    ### TODO : ADD SMILES TYPE CHOICE HERE
+  def __init__(self, fpath, setting_no, seqlen, smilen, need_shuffle = False):
     self.SEQLEN = seqlen
     self.SMILEN = smilen
     #self.NCLASSES = n_classes
@@ -121,73 +119,51 @@ class DataSet(object):
     self.PROBLEMSET = setting_no
 
     # read raw file
-
-    #self._raw = self.read_sets( fpath, setting_no )
+    # self._raw = self.read_sets( FLAGS)
 
     # iteration flags
     # self._num_data = len(self._raw)
 
 
   def read_sets(self, FLAGS): ### fpath should be the dataset folder /kiba/ or /davis/
-    print("Reading %s start" % FLAGS.train_path)
+    fpath = FLAGS.dataset_path
+    setting_no = FLAGS.problem_type
+    print("Reading %s start" % fpath)
 
-    test_fold = json.load(open(FLAGS.test_path + "folds/test_fold.txt"))
-    train_folds = json.load(open(FLAGS.train_path + "folds/train_fold.txt"))
+    test_fold = json.load(open(fpath + "folds/test_fold_setting" + str(setting_no)+".txt"))
+    train_folds = json.load(open(fpath + "folds/train_fold_setting" + str(setting_no)+".txt"))
     
     return test_fold, train_folds
 
+  def parse_data(self, FLAGS,  with_label=True): 
+    fpath = FLAGS.dataset_path	
+    print("Read %s start" % fpath)
 
-  def parse_train_test_data(self, FLAGS, with_label=True): 
-		
-    print("Read %s start" % FLAGS.train_path)
+    ligands = json.load(open(fpath+"ligands_can.txt"), object_pairs_hook=OrderedDict)
+    proteins = json.load(open(fpath+"proteins.txt"), object_pairs_hook=OrderedDict)
 
-    tr_ligands =  json.load(open(FLAGS.train_path+"ligands_iso.txt"), object_pairs_hook=OrderedDict)
-    tr_proteins = json.load(open(FLAGS.train_path+"proteins.txt"), object_pairs_hook=OrderedDict)
+    Y = pickle.load(open(fpath + "Y","rb"), encoding='latin1') ### TODO: read from raw
+    if FLAGS.is_log:
+        Y = -(np.log10(Y/(math.pow(10,9))))
 
-    tr_Y = pickle.load(open(FLAGS.train_path + "Y","rb"), encoding='latin1') ### TODO: read from raw
-    if FLAGS.isLog:
-        tr_Y = -(np.log10(tr_Y/(math.pow(math.e,9))))
-
-    print("Read %s start" % FLAGS.test_path)
-    te_ligands =  json.load(open(FLAGS.test_path+"ligands.txt"), object_pairs_hook=OrderedDict)
-    te_proteins = json.load(open(FLAGS.test_path+"proteins.txt"), object_pairs_hook=OrderedDict)
-
-    te_Y = pickle.load(open(FLAGS.test_path + "Y","rb"), encoding='latin1') ### TODO: read from raw
-
-
-    tr_XD = []
-    tr_XT = []
-
-    te_XD = []
-    te_XT = []
+    XD = []
+    XT = []
 
     if with_label:
-        for d in tr_ligands.keys():
-            tr_XD.append(label_smiles(tr_ligands[d], self.SMILEN, self.charsmiset))
+        for d in ligands.keys():
+            XD.append(label_smiles(ligands[d], self.SMILEN, self.charsmiset))
 
-        for t in tr_proteins.keys():
-            tr_XT.append(label_sequence(tr_proteins[t], self.SEQLEN, self.charseqset))
-
-        for d in te_ligands.keys():
-            te_XD.append(label_smiles(te_ligands[d], self.SMILEN, self.charsmiset))
-
-        for t in te_proteins.keys():
-            te_XT.append(label_sequence(te_proteins[t], self.SEQLEN, self.charseqset))
+        for t in proteins.keys():
+            XT.append(label_sequence(proteins[t], self.SEQLEN, self.charseqset))
     else:
-        for d in tr_ligands.keys():
-            tr_XD.append(one_hot_smiles(tr_ligands[d], self.SMILEN, self.charsmiset))
+        for d in ligands.keys():
+            XD.append(one_hot_smiles(ligands[d], self.SMILEN, self.charsmiset))
 
-        for t in tr_proteins.keys():
-            tr_XT.append(one_hot_sequence(tr_proteins[t], self.SEQLEN, self.charseqset))
-
-        for d in te_ligands.keys():
-            te_XD.append(one_hot_smiles(te_ligands[d], self.SMILEN, self.charsmiset))
-
-        for t in te_proteins.keys():
-            te_XT.append(one_hot_sequence(te_proteins[t], self.SEQLEN, self.charseqset))
-
-
-
+        for t in proteins.keys():
+            XT.append(one_hot_sequence(proteins[t], self.SEQLEN, self.charseqset))
   
-    return tr_XD, tr_XT, tr_Y, te_XD, te_XT, te_Y
+    return XD, XT, Y
+
+
+
 

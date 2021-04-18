@@ -68,15 +68,9 @@ def argparser():
       help='Batch size. Must divide evenly into the dataset sizes.'
   )
   parser.add_argument(
-      '--train_path',
+      '--dataset_path',
       type=str,
-      default='/data/DTC/',
-      help='Directory for input data.'
-  )
-  parser.add_argument(
-      '--test_path',
-      type=str,
-      default='',
+      default='/data/kiba/',
       help='Directory for input data.'
   )
   parser.add_argument(
@@ -86,7 +80,7 @@ def argparser():
       help='Type of the prediction problem (1-4)'
   )
   parser.add_argument(
-      '--isLog',
+      '--is_log',
       type=int,
       default=0,
       help='Convert the values to log10^9'
