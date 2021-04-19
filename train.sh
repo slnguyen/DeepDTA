@@ -1,0 +1,11 @@
+python deepdta-toy/run_experiments.py --num_windows 32 \
+                          --seq_window_lengths 6 \
+                          --smi_window_lengths 8 \
+                          --batch_size 256 \
+                          --num_epoch 100 \
+                          --max_seq_len 1500 \
+                          --max_smi_len 100 \
+                          --dataset_path 'deepdta-toy/data/davis/' \
+                          --problem_type 1 \
+                          --is_log 1 \
+                          --log_dir 'logs/'
